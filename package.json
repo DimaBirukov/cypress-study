@@ -1,0 +1,11 @@
+{
+  "name": "cypress-study",
+  "version": "1.0.0",
+  "description": "study",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dima Birukov",
+  "license": "UNLICENCED"
+}
