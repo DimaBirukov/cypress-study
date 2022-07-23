@@ -1,10 +1,13 @@
-const { it } = require("mocha");
-const {sign_in_page} = require("../selectors/sign_in_page");
+import { it } from "mocha";
+import { sign_in_page } from "../selectors/sign_in_page";
+import { navigation_bar } from "../selectors/navigation_bar";
+import { bank_accounts_page } from "../selectors/bank_accounts_page";
 
 describe('UI tests for sign in page', () => {
 
-  before('visiting sign in page', () => {
+  beforeEach('visiting sign in page', () => {
     cy.visit('/')
+    cy.clearCookies()
   })
 
   it('should show "Real World App logo"', () => {
@@ -53,13 +56,13 @@ describe('UI tests for sign in page', () => {
 
   // 6. should show disabled by default sign in btn
   it("should show disabled by default sign in btn", function() {
-    cy.get(sign_in_page.sing_in_btn).should('be.visible').should('be.disabled')
+    cy.get(sign_in_page.sign_in_btn).should('be.visible').should('be.disabled')
   })
 
 
   // 7. should have 'Don't have an account? Sign Up' clickable link under 'Sign in' btn
   it("should have 'Don't have an account? Sign Up' clickable link under 'Sign in' btn", function() {
-    cy.get(sign_in_page.sing_up_btn).should('be.visible').should('be.not.disabled')
+    cy.get(sign_in_page.sign_up_btn).should('be.visible').should('be.not.disabled')
   })
 
 
@@ -67,4 +70,62 @@ describe('UI tests for sign in page', () => {
   it("should show Cypress copyright link that leads to 'https://www.cypress.io/'", function() {
     cy.get(sign_in_page.cypress_logo).should('be.visible').should('have.attr', 'href', 'https://cypress.io')
   })
+
+
+  // Homework 19.07:
+  // 1. should allow a visitor to sign-up
+  it("should allow a visitor to sign-up", function() {
+    const user = {
+      first_name: 'Test', 
+      last_name: 'User', 
+      username: uniqueValue('TestUser'), 
+      password: 'Great123#'
+    }
+
+    const bank = {
+      bank_name: 'Test Bank', 
+      routing_number:  Cypress._.random(0, 1e9), 
+      account_number:  Cypress._.random(0, 1e9), 
+    }
+
+    cy.singUp(user)
+
+    cy.login(user.username, user.password)
+
+    cy.onboarding(bank)
+  
+    cy.get(navigation_bar.user_full_name).should('have.text', `${user.first_name} ${user.last_name.replace(/\B\w/g, '')}`)
+    cy.get(navigation_bar.username).should('have.text', `@${user.username}`)
+
+    cy.get(navigation_bar.bank_accounts_nav_btn).click()
+    cy.get(bank_accounts_page.accpunts_list).contains(bank.bank_name)
+  })
+
+
+  // 2. should allow a visitor to login
+  it("should allow a visitor to login", function() {
+    cy.fixture('user_test_data').its('test_user').then((user) => {
+      cy.login(user.username, user.password)
+    })
+
+    cy.get(navigation_bar.user_full_name).should('have.text', 'Test U')
+    cy.get(navigation_bar.username).should('have.text', '@TestUser')
+  })
+
+
+  // 3. should allow a visitor to logout
+  it("should allow a visitor to logout", function() {
+    cy.fixture('user_test_data').its('test_user').then((user) => {
+      cy.login(user.username, user.password)
+    })
+
+    cy.get(navigation_bar.logout_btn).click()
+    cy.get(sign_in_page.title_text).should('be.visible').and('have.text', 'Sign in')
+  })
 })
+
+function uniqueValue (value) {
+  const uid = () => Cypress._.random(0, 1e6)
+  let uvalue = value + uid();
+  return uvalue;
+}
