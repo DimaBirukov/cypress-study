@@ -8,7 +8,7 @@ export const sign_in_page = {
     username_error_massage: '#username-helper-text',
     remember_me_checkbox: '[data-test="signin-remember-me"]',
     remember_me_input: '[name="remember"]',
-    sing_in_btn: '[data-test="signin-submit"]',
-    sing_up_btn: '[data-test="signup"]',
+    sign_in_btn: '[data-test="signin-submit"]',
+    sign_up_btn: '[data-test="signup"]',
     cypress_logo: '[rel="noopener noreferrer"]'
   }
