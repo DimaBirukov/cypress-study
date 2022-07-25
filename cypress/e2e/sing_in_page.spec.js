@@ -1,5 +1,6 @@
 import { it } from "mocha";
 import { sign_in_page } from "../selectors/sign_in_page";
+import { sign_up_page } from "../selectors/sign_up_page";
 import { navigation_bar } from "../selectors/navigation_bar";
 import { bank_accounts_page } from "../selectors/bank_accounts_page";
 
@@ -22,28 +23,27 @@ describe('UI tests for sign in page', () => {
   // Homework 14.07:
   // 1. should show typeable Username field
   it("should show typeable Username field", function() {
-    cy.get(sign_in_page.username_field).should('be.visible').should('be.not.disabled')
+    cy.get(sign_in_page.username_field).should('be.visible').and('be.not.disabled')
   })
 
 
   // 2. should show typeable Password field
   it("should show typeable Password field", function() {
-    cy.get(sign_in_page.password_field).should('be.visible').should('be.not.disabled')
+    cy.get(sign_in_page.password_field).should('be.visible').and('be.not.disabled')
   })
 
 
   // 3. should show Username and Password placeholders
   it("should show Username and Password placeholders", function() {
-    cy.get(sign_in_page.username_label).should('be.visible').should('have.text', 'Username')
-    cy.get(sign_in_page.password_label).should('be.visible').should('have.text', 'Password')
+    cy.get(sign_in_page.username_label).should('be.visible').and('have.text', 'Username')
+    cy.get(sign_in_page.password_label).should('be.visible').and('have.text', 'Password')
   })
 
 
   // 4. should show 'Username is required' error if user clicks on it and then click outside this field and didn't enter any value
   it("should show 'Username is required' error if user clicks on it and then click outside this field and didn't enter any value", function() {
-    cy.get(sign_in_page.username_field).click()
-    cy.get(sign_in_page.password_field).click()
-    cy.get(sign_in_page.username_error_massage).should('be.visible').should('have.text', 'Username is required')
+    cy.get(sign_in_page.username_field).blur()
+    cy.get(sign_in_page.username_error_massage).should('be.visible').and('have.text', 'Username is required')
   })
 
 
@@ -56,19 +56,20 @@ describe('UI tests for sign in page', () => {
 
   // 6. should show disabled by default sign in btn
   it("should show disabled by default sign in btn", function() {
-    cy.get(sign_in_page.sign_in_btn).should('be.visible').should('be.disabled')
+    cy.get(sign_in_page.username_field).blur()
+    cy.get(sign_in_page.sign_in_btn).should('be.visible').and('be.disabled')
   })
 
 
   // 7. should have 'Don't have an account? Sign Up' clickable link under 'Sign in' btn
   it("should have 'Don't have an account? Sign Up' clickable link under 'Sign in' btn", function() {
-    cy.get(sign_in_page.sign_up_btn).should('be.visible').should('be.not.disabled')
+    cy.get(sign_in_page.sign_up_btn).should('be.visible').and('be.not.disabled')
   })
 
 
   // 8. should show Cypress copyright link that leads to 'https://www.cypress.io/'
   it("should show Cypress copyright link that leads to 'https://www.cypress.io/'", function() {
-    cy.get(sign_in_page.cypress_logo).should('be.visible').should('have.attr', 'href', 'https://cypress.io')
+    cy.get(sign_in_page.cypress_logo).should('be.visible').and('have.attr', 'href', 'https://cypress.io')
   })
 
 
@@ -106,10 +107,8 @@ describe('UI tests for sign in page', () => {
   it("should allow a visitor to login", function() {
     cy.fixture('user_test_data').its('test_user').then((user) => {
       cy.login(user.username, user.password)
+      cy.get(navigation_bar.username).should('have.text', `@${user.username}`)
     })
-
-    cy.get(navigation_bar.user_full_name).should('have.text', 'Test U')
-    cy.get(navigation_bar.username).should('have.text', '@TestUser')
   })
 
 
@@ -121,6 +120,56 @@ describe('UI tests for sign in page', () => {
 
     cy.get(navigation_bar.logout_btn).click()
     cy.get(sign_in_page.title_text).should('be.visible').and('have.text', 'Sign in')
+  })
+
+  // Homework 21.07
+  // 1. should display login errors
+  it("should display login errors", function() {
+    cy.get(sign_in_page.username_field).blur()
+    cy.get(sign_in_page.username_error_massage).should('be.visible').and('have.text', 'Username is required')
+    cy.get(sign_in_page.password_field).type('111').blur()
+    cy.get(sign_in_page.password_error_massage).should('be.visible').and('have.text', 'Password must contain at least 4 characters')
+  })
+
+
+  // 2. should display signup errors
+  it("should display signup errors", function() {
+    cy.get(sign_in_page.sign_up_btn).click()
+
+    cy.get(sign_up_page.first_name_field).blur()
+    cy.get(sign_up_page.first_name_error_massage).should("be.visible").and("have.text", "First Name is required");
+
+    cy.get(sign_up_page.last_name_field).click().blur();
+    cy.get(sign_up_page.last_name_error_massage).should("be.visible").and("have.text", "Last Name is required");
+
+    cy.get(sign_up_page.username_field).click().blur();
+    cy.get(sign_up_page.username_error_massage).should("be.visible").and("have.text", "Username is required");
+
+    cy.get(sign_up_page.password_field).click().blur();
+    cy.get(sign_up_page.password_error_massage).should("be.visible").and("have.text", "Enter your password");
+
+    cy.get(sign_up_page.confirm_password_field).click().blur();
+    cy.get(sign_up_page.confirm_password_error_massage).should("be.visible").and("have.text", "Confirm your password");
+    cy.get(sign_up_page.confirm_password_field).type('1').blur()
+    cy.get(sign_up_page.confirm_password_error_massage).should("be.visible").and("have.text", "Password does not match");
+  })
+
+
+  // 3. should error for an invalid user
+  it("should error for an invalid user", function() {
+    cy.get(sign_in_page.username_field).type('Invalid')
+    cy.get(sign_in_page.password_field).type('Invalid')
+    cy.get(sign_in_page.sign_in_btn).click()
+    cy.get(sign_in_page.sign_in_error_massage).should('be.visible').and('contain', 'Username or password is invalid')
+  })
+
+
+  // 4. should error for an invalid password for existing user
+  it("should error for an invalid password for existing user", function() {
+    cy.get(sign_in_page.username_field).type('TestUser')
+    cy.get(sign_in_page.password_field).type('Invalid')
+    cy.get(sign_in_page.sign_in_btn).click()
+    cy.get(sign_in_page.sign_in_error_massage).should('be.visible').and('contain', 'Username or password is invalid')
   })
 })
 

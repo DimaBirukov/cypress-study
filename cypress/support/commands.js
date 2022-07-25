@@ -27,6 +27,7 @@
 import { sign_in_page } from "../selectors/sign_in_page";
 import { sign_up_page } from "../selectors/sign_up_page";
 import { onboarding_modal } from "../selectors/onboarding_modal";
+import { bank_accounts_page } from "../selectors/bank_accounts_page";
 
 Cypress.Commands.add('login', (username, password) => { 
     cy.get(sign_in_page.username_field).type(username)
@@ -59,4 +60,12 @@ Cypress.Commands.add('onboarding', (bank) => {
     cy.get(onboarding_modal.title).should('be.visible').contains('Finished')
     cy.get(onboarding_modal.next_btn).click()
     cy.get(onboarding_modal.title).should('not.exist')
+})
+
+Cypress.Commands.add('createBankAccount', (bank) => {
+    cy.get(bank_accounts_page.create_account_btn).click()
+    cy.get(bank_accounts_page.bank_name_field).type(bank.bank_name)
+    cy.get(bank_accounts_page.routing_number_field).type(bank.routing_number)
+    cy.get(bank_accounts_page.account_number_field).type(bank.account_number)
+    cy.get(bank_accounts_page.save_btn).click()
 })

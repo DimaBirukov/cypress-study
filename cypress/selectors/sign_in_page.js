@@ -6,9 +6,11 @@ export const sign_in_page = {
     username_label: '#username-label',
     password_label: '#password-label',
     username_error_massage: '#username-helper-text',
+    password_error_massage: '#password-helper-text',
     remember_me_checkbox: '[data-test="signin-remember-me"]',
     remember_me_input: '[name="remember"]',
     sign_in_btn: '[data-test="signin-submit"]',
     sign_up_btn: '[data-test="signup"]',
-    cypress_logo: '[rel="noopener noreferrer"]'
+    cypress_logo: '[rel="noopener noreferrer"]',
+    sign_in_error_massage: '[data-test="signin-error"]'
   }
